@@ -1,0 +1,63 @@
+name: Update Version in composer.json
+
+on:
+  push:
+    tags:
+      - 'v*'
+      - '[0-9]+.[0-9]+.[0-9]+' # Matches tags like 1.0.0
+
+permissions:
+  contents: write
+
+jobs:
+  update-version:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Extract Version from Tag
+        id: extract_version
+        run: |
+          # Remove 'v' prefix if exists (e.g., v1.0.0 -> 1.0.0)
+          VERSION=${GITHUB_REF_NAME#v}
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+
+      - name: Update composer.json
+        run: |
+          # Use jq to update the "version" field
+          jq --arg ver "${{ env.VERSION }}" '.version = $ver' composer.json > composer.tmp.json && mv composer.tmp.json composer.json
+          
+      - name: Commit, Move Tag, and Push Branch
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          
+          git add composer.json
+          
+          # Check if there are any changes in composer.json
+          if ! git diff-index --quiet HEAD; then
+            # Create a commit on the detached HEAD of the current tag
+            git commit -m "chore: bump version to ${{ env.VERSION }} [skip ci]"
+            
+            # Move the current tag to point to the new commit
+            git tag -f ${GITHUB_REF_NAME} HEAD
+            
+            # Force push the updated tag
+            git push origin -f refs/tags/${GITHUB_REF_NAME}
+            
+            # Find the branch where the tag was created from (e.g., main or master) and push the new commit to it
+            BRANCH=$(git branch -r --contains HEAD~1 | grep -v HEAD | grep -v "origin/HEAD" | head -n 1 | sed 's/.*\///')
+            
+            if [ -n "$BRANCH" ]; then
+              echo "Pushing commit back to branch: $BRANCH"
+              git push origin HEAD:refs/heads/$BRANCH
+            else
+              echo "Could not find target branch automatically."
+            fi
+            
+          else
+            echo "Version in composer.json is already up to date!"
+          fi
