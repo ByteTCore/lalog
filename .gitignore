@@ -1,0 +1,27 @@
+# Dependencies
+/vendor/
+/node_modules/
+
+# Environment
+.env
+
+# Testing & Coverage
+.phpunit.result.cache
+.phpunit.cache/
+coverage/
+
+# Tools & Analysis
+.php-cs-fixer.cache
+
+# IDEs & Editors
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS Generated
+.DS_Store
+Thumbs.db
+
+# Project Engine / Context
+.agent/
