@@ -17,6 +17,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Configurable storage disk, directory, and file format
 - File rotation when max size is exceeded
 - Clear-on-start option for development workflow
-- Support for Laravel 10.x, 11.x, and 12.x
+- Support for Laravel 9.x+
 - Facade support via `Lalog\Facades\Lalog`
 - Config publishing via `vendor:publish --tag=lalog-config`

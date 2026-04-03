@@ -19,8 +19,8 @@ Automatically log all SQL queries to files with **binding interpolation**, **tim
 
 ## Requirements
 
-- PHP 8.1+
-- Laravel 10.x, 11.x, or 12.x
+- PHP 8.0+
+- Laravel 9.x+
 
 ## Installation
 
